@@ -16,6 +16,11 @@ namespace DungeonCrawl.Board
         private Room westNeigh = null;
         private Room eastNeigh = null;
         private Room southNeigh = null;
+        public Room(int w, int h)
+        {
+            this.width = w;
+            this.height = h;
+        }
         /*private Cell[,] cells;
         public Room(int pwidth, int pheight)
         {

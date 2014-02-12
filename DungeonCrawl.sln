@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DungeonCrawl", "DungeonCrawl\DungeonCrawl\DungeonCrawl.csproj", "{27FC65D4-084E-4FE4-B355-8642C3BB50E0}"
 EndProject
-Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "DungeonCrawlContent", "DungeonCrawl\DungeonCrawlContent\DungeonCrawlContent.contentproj", "{C16B2CED-B59D-4C57-B20D-CD7D528AD4AE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DungeonCrawlContent", "DungeonCrawl\DungeonCrawlContent\DungeonCrawlContent.contentproj", "{C16B2CED-B59D-4C57-B20D-CD7D528AD4AE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AA4BA39C-D683-47A2-80F3-623391AE8686}"
+	ProjectSection(SolutionItems) = preProject
+		Performance1.psess = Performance1.psess
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,10 +20,15 @@ Global
 		{27FC65D4-084E-4FE4-B355-8642C3BB50E0}.Debug|x86.Build.0 = Debug|x86
 		{27FC65D4-084E-4FE4-B355-8642C3BB50E0}.Release|x86.ActiveCfg = Release|x86
 		{27FC65D4-084E-4FE4-B355-8642C3BB50E0}.Release|x86.Build.0 = Release|x86
+		{27FC65D4-084E-4FE4-B355-8642C3BB50E0}.Release|x86.Deploy.0 = Release|x86
 		{C16B2CED-B59D-4C57-B20D-CD7D528AD4AE}.Debug|x86.ActiveCfg = Debug|x86
 		{C16B2CED-B59D-4C57-B20D-CD7D528AD4AE}.Release|x86.ActiveCfg = Release|x86
+		{C16B2CED-B59D-4C57-B20D-CD7D528AD4AE}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal
