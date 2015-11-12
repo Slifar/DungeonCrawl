@@ -12,8 +12,8 @@ namespace DungeonCrawl.System
         {
             bool blocked = false;
             bool shouldStop = false;
-            int cellx = (int)(ent.loc.X + x) / Board.Tile.tileSize;
-            int celly = (int)(ent.loc.Y + y) / Board.Tile.tileSize;
+            int cellx = (int)(ent.loc.X + x) / (Board.Tile.tileSize);
+            int celly = (int)(ent.loc.Y + y) / (Board.Tile.tileSize);
             Board.CollisionCell curCell = board.ColRows[(int)(ent.loc.Y / Board.Tile.tileSize)].Columns[(int)(ent.loc.X / Board.Tile.tileSize)];
             Board.CollisionCell Cell = board.ColRows[celly].Columns[cellx];
             for (int i = -1; i <= 1; i++)

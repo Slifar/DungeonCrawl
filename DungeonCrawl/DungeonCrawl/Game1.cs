@@ -42,6 +42,8 @@ namespace DungeonCrawl
         Texture2D playerCast;
         Texture2D pantsCast;
         Texture2D armorCast;
+        public static int graphicHeight = 1024;
+        public static int graphicWidth = 1280;
         KeyboardState ks;
         KeyboardState prev;
         Vector2 mapPos = Vector2.Zero;
@@ -60,8 +62,8 @@ namespace DungeonCrawl
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            graphics.PreferredBackBufferWidth = 800;//1280;
-            graphics.PreferredBackBufferHeight = 600;//1024;
+            graphics.PreferredBackBufferWidth = graphicWidth;//1280;
+            graphics.PreferredBackBufferHeight = graphicHeight;//1024;
             this.IsMouseVisible = true;
             graphics.SynchronizeWithVerticalRetrace = false;
             //this.IsFixedTimeStep = false; //Uncommenting this section allows updates, and thus FPS by extension, to occur more than 60 times per second.
@@ -83,8 +85,8 @@ namespace DungeonCrawl
             Components.Add(new TimeKeeper(this));
             TK = new TimeKeeper(this);
             Timer timer = new Timer();
-            board = new Board.Board();
             Board.Tile.tileSize = 32;
+            board = new Board.Board();
             Player = new Entities.PC();
             base.Initialize();
             MapRenderer.init(GraphicsDevice);
@@ -114,12 +116,12 @@ namespace DungeonCrawl
                     int rany = rand.Next(0, board.Height);
                     if (board.Rows[rany].Columns[ranx].TileID == 1)
                     {
-                        Entities.Skeleton gob = new Entities.Skeleton();
+                        Entities.Car gob = new Entities.Car();
                         board.ents.Add(gob);//Add the skeleton to the list of entities
                         gob.player = Player;//Let the skeleton know who the player is
                         gob.board = this.board;//Let the skeleton know what the board is
                         gob.setBoard(board);//Perform board initialization
-                        gob.tex = gobtex;//Set the default texture
+                        gob.tex = System.TexHelper.TexMake(Tile.tileSize, GraphicsDevice, RandomColor());//Set the default texture
                         gob.setAtkTex(skellAtk);
                         gob.deadTex = skellDead;//Set the dead texture
                         gob.Init();//Initialize the skeleton
@@ -130,9 +132,9 @@ namespace DungeonCrawl
                 } 
             }
             Entities.Collisions.Init(board, Player);//Pass the board to the collision management system
-            MediaPlayer.IsRepeating = true;
-            MediaPlayer.Volume = 2f;
-            MediaPlayer.Play(Music);//Play the background music
+            //MediaPlayer.IsRepeating = true;
+            //MediaPlayer.Volume = 2f;
+            //MediaPlayer.Play(Music);//Play the background music
             //Generate the equipment the player is currently using
             Objects.pants pant = new Objects.pants();
             pant.setTex(pants);
@@ -159,7 +161,8 @@ namespace DungeonCrawl
             colDebug = new Texture2D(GraphicsDevice, 1, 1);
             playertex = Content.Load<Texture2D>(@"png/walkcycle/BODY_male");
             Player.setTex(playertex);
-            //playertex = System.TexHelper.TexMake(Tile.tileSize, GraphicsDevice, Color.Orange); //new Texture2D(GraphicsDevice, 1, 1);
+            playertex = System.TexHelper.TexMake(Tile.tileSize, GraphicsDevice, Color.Orange); //new Texture2D(GraphicsDevice, 1, 1);
+            Player.setTex(playertex);
             //floor.SetData(new[] { Color.Tan });
             //wall.SetData(new[] { Color.Brown });
             colDebug.SetData(new[] { Color.White });
@@ -204,8 +207,10 @@ namespace DungeonCrawl
                 this.Exit();
             prev = ks;
             ks = Keyboard.GetState();
-            if (ks.IsKeyDown(Keys.Escape)) { this.Exit(); }
-            if (ks.IsKeyDown(Keys.LeftShift) && Player.state == 0) { Player.Attack(); swordClang.Play(0.2f, 0.0f, 0.0f); }
+            if (ks.IsKeyDown(Keys.Escape)) {
+                spriteBatch.Dispose();
+                this.Exit(); }
+            
             if (ks.IsKeyDown(Keys.Left))
             {
                 if (Player.state == 0) //If the player is currently in a state where arrows move them
@@ -287,12 +292,12 @@ namespace DungeonCrawl
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Black);
-
-            spriteBatch.Begin();
+            GraphicsDevice.Clear(Color.White);
+            Matrix tMatrix = Matrix.CreateScale(.5f, .5f, .5f);
+            spriteBatch.Begin( SpriteSortMode.Deferred, null, null, null, null, null, tMatrix); 
             if (needMapRender)
             {
-                map = MapRenderer.Render(board, spriteBatch);
+                //map = MapRenderer.Render(board, spriteBatch);
                 needMapRender = false;
             }
             //mapPos.X = board.Width * Tile.tileSize - Camera.Location.X;
@@ -302,7 +307,7 @@ namespace DungeonCrawl
             //source.Offset(source.Width, source.Height);
             var Dest = new Rectangle(0,0,
                 GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-            spriteBatch.Draw(map, Dest, source, Color.White);
+            //spriteBatch.Draw(map, Dest, source, Color.White);
             /*Vector2 firstSquare = new Vector2(Camera.Location.X / Tile.tileSize, Camera.Location.Y / Tile.tileSize);
             int firstX = (int)firstSquare.X;
             int firstY = (int)firstSquare.Y;
@@ -337,26 +342,34 @@ namespace DungeonCrawl
             }*/
             foreach (Entities.Entity e in board.ents)//Draw all the entities
             {
-                e.self.DrawPosition = new Vector2((e.loc.X - Tile.tileSize / 2) - Camera.Location.X, (e.loc.Y - Tile.tileSize / 2) - Camera.Location.Y);
+                e.self.DrawPosition = new Vector2((e.loc.X), (e.loc.Y));
                 e.Draw(spriteBatch);
                 /*spriteBatch.Draw(
                 gobtex,
                 new Vector2((e.loc.X - Tile.tileSize / 2) - Camera.Location.X, (e.loc.Y - Tile.tileSize / 2) - Camera.Location.Y),
                 Color.White);*/
             }
-            Player.self.DrawPosition = new Vector2((Player.loc.X - Tile.tileSize / 2) - Camera.Location.X, (Player.loc.Y - Tile.tileSize / 2) - Camera.Location.Y);//Set the player's draw position
+            Player.self.DrawPosition = new Vector2((Player.loc.X), (Player.loc.Y));//Set the player's draw position
             Player.Draw(spriteBatch);//Draw the player
             /*spriteBatch.Draw(
                 playertex,
                 new Vector2((Player.loc.X - Tile.tileSize/2) - Camera.Location.X,(Player.loc.Y - Tile.tileSize/2) - Camera.Location.Y),
                 Color.White);*/
             string rem = string.Format("Remaining Skeletons: {0}", remaining);
-            spriteBatch.DrawString(spriteFont, rem, new Vector2(33, 99), Color.Black);
-            spriteBatch.DrawString(spriteFont, rem, new Vector2(32, 98), Color.White);
+            //spriteBatch.DrawString(spriteFont, rem, new Vector2(33, 99), Color.Black);
+            //spriteBatch.DrawString(spriteFont, rem, new Vector2(32, 98), Color.White);
             spriteBatch.End();
             base.Draw(gameTime);
         }
 
         public SpriteFont spriteFont { get; set; }
+        private Random rnd = new Random();
+        private Color[] Colors = new Color[] { Color.Red, Color.Orange, Color.Yellow, Color.Green, Color.Blue, Color.Indigo, Color.Purple };
+
+        public Color RandomColor()
+        {
+            return Colors[rnd.Next(Colors.Length)];
+        }
     }
+
 }

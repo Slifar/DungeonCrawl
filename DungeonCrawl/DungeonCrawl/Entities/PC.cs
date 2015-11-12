@@ -34,9 +34,10 @@ namespace DungeonCrawl.Entities
             self.Sprite.AddAnimation("left", 64, 64, 64, 64, 8, 0.1f);
             self.Sprite.AddAnimation("rightstop", 0, 192, 64, 64, 1, 0.1f);
             self.Sprite.AddAnimation("right", 64, 192, 64, 64, 8, 0.1f);
-            self.HorizontalCollisionBuffer = 5 *Tile.tileSize / 8;
-            self.VerticalCollisionBuffer = 2 * Tile.tileSize / 3;
-            self.VerticalCollisionOffset = -17;
+            self.HorizontalCollisionBuffer = 4 *Tile.tileSize / 8;
+            self.HorizontalCollisionOffset = 0;
+            self.VerticalCollisionBuffer = 3 * Tile.tileSize / 6;
+            self.VerticalCollisionOffset = 0;
         }
         public void equipClothes(Objects.Equipment toEquip)
         {
@@ -49,10 +50,10 @@ namespace DungeonCrawl.Entities
         public void setAtkTex(Texture2D AtkTex) //Set the player's attack animations
         {
             attack = new MobileSprite(AtkTex);
-            attack.Sprite.AddAnimation("upstop", 0, 0, 64, 64, 1, 0.1f);
+            attack.Sprite.AddAnimation("upstop", 0, 0, 32, 32, 1, 0.05f);
             attack.Sprite.CurrentAnimation = "upstop";
             attack.Sprite.AddAnimation("up", 64, 0, 64, 64, 5, 0.05f, "upstop");
-            attack.Sprite.AddAnimation("downstop", 0, 128, 64, 64, 1, 0.1f);
+            attack.Sprite.AddAnimation("downstop", 0, 128, 65, 65, 1, 0.05f);
             attack.Sprite.AddAnimation("down", 64, 128, 64, 64, 5, 0.05f, "downstop");
             attack.Sprite.AddAnimation("leftstop", 0, 64, 64, 64, 1, 0.1f);
             attack.Sprite.AddAnimation("left", 64, 64, 64, 64, 5, 0.05f, "leftstop");

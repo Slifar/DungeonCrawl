@@ -299,7 +299,7 @@ namespace Animation
             if (bAnimating)
                 spriteBatch.Draw(t2dTexture, (v2Draw + new Vector2(XOffset, YOffset) + v2Center),
                                 CurrentFrameAnimation.FrameRectangle, colorTint,
-                                fRotation, v2Center, 1f, SpriteEffects.None, 0);
+                                fRotation, v2Center, 0.5f, SpriteEffects.None, 0);
         }
     }
 }

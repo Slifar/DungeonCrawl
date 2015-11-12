@@ -22,8 +22,8 @@ namespace DungeonCrawl.Board
     {
         public List<BoardRow> Rows = new List<BoardRow>();
         public List<CollisionRow> ColRows = new List<CollisionRow>();
-        public int Height = 100;
-        public int Width = 100;
+        public int Height = Game1.graphicHeight / (Tile.tileSize / 2);
+        public int Width = (Game1.graphicWidth / (Tile.tileSize / 2))-1;
         public List<Entities.Entity> ents = new List<Entities.Entity>();
         public Entities.PC Player;
         public Board()
@@ -43,7 +43,7 @@ namespace DungeonCrawl.Board
                 Rows.Add(curRow);
                 ColRows.Add(curcolrow);
             }
-            GenerateCave(Rows, Height, Width);
+            //GenerateCave(Rows, Height, Width);
         }
         public Entities.PC getPlayer()
         {
