@@ -42,8 +42,8 @@ namespace DungeonCrawl
         Texture2D playerCast;
         Texture2D pantsCast;
         Texture2D armorCast;
-        public static int graphicHeight = 1024;
-        public static int graphicWidth = 1280;
+        public static int graphicHeight = 600;
+        public static int graphicWidth = 800;
         KeyboardState ks;
         KeyboardState prev;
         Vector2 mapPos = Vector2.Zero;
@@ -104,7 +104,7 @@ namespace DungeonCrawl
                 if (board.Rows[rany].Columns[ranx].TileID == 1)
                 {
                     Player.spawn(ranx * Tile.tileSize, rany * Tile.tileSize);
-                    board.ColRows[rany].Columns[ranx].addEnt(Player);
+                    //board.ColRows[rany].Columns[ranx].addEnt(Player);
                     break;
                 }
             }
@@ -127,6 +127,7 @@ namespace DungeonCrawl
                         gob.Init();//Initialize the skeleton
                         gob.spawn(ranx * Tile.tileSize, rany * Tile.tileSize);//Spawn the skeleton
                         board.ColRows[rany].Columns[ranx].addEnt(gob);//Add the skeleton to the entity list of the cell it spawned on
+                        gob.board = board;
                         break;//Stop looping now that the skeleton is spawned
                     }
                 } 
@@ -209,9 +210,10 @@ namespace DungeonCrawl
             ks = Keyboard.GetState();
             if (ks.IsKeyDown(Keys.Escape)) {
                 spriteBatch.Dispose();
-                this.Exit(); }
+                Components.Clear();
+                this.Initialize(); }
             
-            if (ks.IsKeyDown(Keys.Left))
+            /*if (ks.IsKeyDown(Keys.Left))
             {
                 if (Player.state == 0) //If the player is currently in a state where arrows move them
                 {
@@ -245,7 +247,7 @@ namespace DungeonCrawl
                     Movement.move(Player, 0, 3, board, Tile.tileSize);
                   //  Player.moveY(MathHelper.Clamp(Player.getLoc().Y + 3, 0 + (Tile.tileSize / 2), (board.Height - height) * (Tile.tileSize + (Tile.tileSize / 2)))); 
                 }
-            }
+            }*/
             Camera.Track(Player, width, height, Tile.tileSize, board.Width, board.Height);
             //Camera.Track(Player, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, Tile.tileSize, board.Width, board.Height);
             
@@ -350,7 +352,7 @@ namespace DungeonCrawl
                 Color.White);*/
             }
             Player.self.DrawPosition = new Vector2((Player.loc.X), (Player.loc.Y));//Set the player's draw position
-            Player.Draw(spriteBatch);//Draw the player
+            //Player.Draw(spriteBatch);//Draw the player
             /*spriteBatch.Draw(
                 playertex,
                 new Vector2((Player.loc.X - Tile.tileSize/2) - Camera.Location.X,(Player.loc.Y - Tile.tileSize/2) - Camera.Location.Y),

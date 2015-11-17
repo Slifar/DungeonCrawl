@@ -57,6 +57,7 @@ namespace DungeonCrawl.Entities
             {
                 if (e != ent && entBox.Intersects(e.self.CollisionBox))
                 {
+                    e.bumped(ent);
                     blocked = true;
                     break;
                 }

@@ -84,6 +84,9 @@ namespace DungeonCrawl.Entities
         {
             this.DEX = num;
         }
+
+        internal abstract void bumped(Entity ent);
+
         public void setCON(int num)
         {
             this.CON = num;

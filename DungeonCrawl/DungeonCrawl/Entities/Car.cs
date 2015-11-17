@@ -12,13 +12,27 @@ namespace DungeonCrawl.Entities
 {
     class Car : Entity
     {
+        int scanTimer = 0;
+        int clearTimer = 600;
+        int tarTimer = 300;
+        int compression = 0;
+        public List<Entities.Entity> carsBumped = new List<Entities.Entity>();
+        public List<Entities.Entity> Targets = new List<Entities.Entity>();
+        Entity curTar = null;
+        static Random rand = new Random();
+        int xCheck = 0;//rand.Next(0, 100);
+        int yCheck = 0;//rand.Next(0, 100);
         public PC player;
         public Board.Board board;
         MobileSprite attack;
+        private int compressionThreshold = 3;
+        private int compressionRadius = 8;
+
         public Texture2D tex { get; set; }
         public Texture2D deadTex { get; set; }
         public override void Init()
         {
+            rand = new Random();
             this.setHP(100);
             this.setAP(100);
             this.setSP(100);
@@ -76,35 +90,43 @@ namespace DungeonCrawl.Entities
          */
         public override void update(GameTime time)
         {
-            if (this.state != dead)
+            if (scanTimer <= 0 && (curTar == null || tarTimer < 1))
             {
-                int xDist = (int)((player.getLoc().X / Board.Tile.tileSize) - (this.loc.X / Board.Tile.tileSize));
-                int yDist = (int)((player.getLoc().Y / Board.Tile.tileSize) - (this.loc.Y / Board.Tile.tileSize));
-                if (this.state != attacking)
+                scanTimer = 60;
+                tarTimer = 300;
+                scanForTarget();
+            }
+            else
+            {
+                scanTimer--;
+                tarTimer--;
+            }
+            if (clearTimer <= 0)
+            {
+                clearTimer = 6000;
+                carsBumped.Clear();
+            }
+            else clearTimer--;
+            if (this.curTar != null)
+            {
+                if (carsBumped.Count >= board.ents.Count / 3) carsBumped.Clear();
+                int xDist = (int)((curTar.loc.X / Board.Tile.tileSize) - (this.loc.X / Board.Tile.tileSize));
+                int yDist = (int)((curTar.loc.Y / Board.Tile.tileSize) - (this.loc.Y / Board.Tile.tileSize));
+                if (xDist > 0)
                 {
-                    if ((Math.Abs(xDist) < 1) && Math.Abs(yDist) < 1)
-                    {
-                        this.Attack();
-                    }
-                    else if ((Math.Abs(xDist) < 5) && Math.Abs(yDist) < 5)
-                    {
-                        if (xDist > 0)
-                        {
-                            System.Movement.move(this, 3, 0, board, Board.Tile.tileSize);
-                        }
-                        if (xDist < 0)
-                        {
-                            System.Movement.move(this, -3, 0, board, Board.Tile.tileSize);
-                        }
-                        if (yDist > 0)
-                        {
-                            System.Movement.move(this, 0, 3, board, Board.Tile.tileSize);
-                        }
-                        if (yDist < 0)
-                        {
-                            System.Movement.move(this, 0, -3, board, Board.Tile.tileSize);
-                        }
-                    }
+                    System.Movement.move(this, 3, 0, board, Board.Tile.tileSize);
+                }
+                if (xDist < 0)
+                {
+                    System.Movement.move(this, -3, 0, board, Board.Tile.tileSize);
+                }
+                if (yDist > 0)
+                {
+                    System.Movement.move(this, 0, 3, board, Board.Tile.tileSize);
+                }
+                if (yDist < 0)
+                {
+                    System.Movement.move(this, 0, -3, board, Board.Tile.tileSize);
                 }
                 AnimCheck.changeAnim(this);
                 self.Position = this.loc;
@@ -114,15 +136,69 @@ namespace DungeonCrawl.Entities
             }
             else
             {
-                Vector2 pos = self.DrawPosition;
-                pos.Y -= 16;
-                deadSprite.DrawPosition = pos;
-                deadSprite.Update(time);
-                if (deadSprite.Sprite.CurrentAnimation == "dead")
+                
+                if(xCheck < 33)
                 {
-                    self.Position = Vector2.Zero;
+                    System.Movement.move(this, -3, 0, board, Board.Tile.tileSize);
+                }
+                else if(xCheck < 66)
+                {
+                    System.Movement.move(this, 3, 0, board, Board.Tile.tileSize);
+                }
+                if(yCheck < 33)
+                {
+                    System.Movement.move(this, 0, -3, board, Board.Tile.tileSize);
+                }
+                else if(yCheck < 66)
+                {
+                    System.Movement.move(this, 0, 3, board, Board.Tile.tileSize);
+                }
+                AnimCheck.changeAnim(this);
+                self.Position = this.loc;
+                self.Update(time);
+                this.moved = false;
+                this.moveCheckReset();
+            }
+        }
+
+        private void scanForTarget()
+        {
+            curTar = null;
+            Targets.Clear();
+            for(int i = -100; i <= 100; i++)
+            {
+                for (int j = -100; j <= 100; j++)
+                {
+                    int cellx = (int)(loc.X) / (Board.Tile.tileSize);
+                    int celly = (int)(loc.Y) / (Board.Tile.tileSize);
+                    Board.CollisionCell curCell = board.ColRows[(int)(loc.Y / Board.Tile.tileSize)].Columns[(int)(loc.X / Board.Tile.tileSize)];
+                    Board.CollisionCell Cell = board.ColRows[celly].Columns[cellx];
+                    if ((celly + j) >= 0 && (cellx + i) >= 0 && (celly + j) < board.ColRows.Count 
+                            && (cellx + i) < board.ColRows[celly + j].Columns.Count)
+                    {
+                        CollisionCell scanCell = board.ColRows[celly+j].Columns[cellx+i];
+                        foreach(Entity e in scanCell.getEnts())
+                        {
+                            if (e != this && !carsBumped.Contains(e))
+                            {
+                                Targets.Add(e);
+                                if (i < compressionRadius && j < compressionRadius) compression++;
+                            }
+                        }
+                    }
+                    if (Targets.Count > 0)
+                    {
+                        curTar = Targets[rand.Next(Targets.Count)];
+                        if (compression > compressionThreshold || carsBumped.Contains(curTar))
+                        {
+                            curTar = null;
+                        }
+                    }
                 }
             }
+            xCheck = rand.Next(0, 100);
+            yCheck = rand.Next(0, 100);
+            compression = 0;
         }
 
         public void spawn(int x, int y)
@@ -146,6 +222,13 @@ namespace DungeonCrawl.Entities
         public override void die()
         {
             this.state = dead;
+        }
+
+        internal override void bumped(Entity ent)
+        {
+            if(!carsBumped.Contains(ent)) carsBumped.Add(ent);
+            scanForTarget();
+            if (carsBumped.Count >= board.ents.Count/3) carsBumped.Clear();
         }
     }
 }

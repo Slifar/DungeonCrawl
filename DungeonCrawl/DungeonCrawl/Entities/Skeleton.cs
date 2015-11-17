@@ -210,5 +210,10 @@ namespace DungeonCrawl.Entities
         {
             this.state = dead;
         }
+
+        internal override void bumped(Entity ent)
+        {
+            
+        }
     }
 }
