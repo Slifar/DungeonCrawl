@@ -13,6 +13,7 @@ namespace DungeonCrawl.Entities
     {
         Board.Board board;
         public string Name;
+        public int score;
         private int HP;
         private int AP;
         private int SP;

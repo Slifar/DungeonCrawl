@@ -15,6 +15,7 @@ namespace DungeonCrawl
         SpriteFont spriteFont;
 
         int frameRate = 0;
+        bool paused = false; 
         int frameCounter = 0;
         TimeSpan elapsedTime = TimeSpan.Zero;
 
@@ -52,7 +53,10 @@ namespace DungeonCrawl
         public override void Update(GameTime gameTime)
         {
             elapsedTime += gameTime.ElapsedGameTime;
-
+            if(elapsedTime.Seconds >= Game1.initialRunTime && !paused)
+            {
+                Game1.running = false;
+            }
         }
 
 

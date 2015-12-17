@@ -13,11 +13,13 @@ namespace DungeonCrawl.Entities
     class Car : Entity
     {
         int scanTimer = 0;
-        int clearTimer = 600;
-        int tarTimer = 300;
+        int clearTimer = 0;
+        int tarTimer = 0;
         int compression = 0;
         public List<Entities.Entity> carsBumped = new List<Entities.Entity>();
         public List<Entities.Entity> Targets = new List<Entities.Entity>();
+        public List<Entities.Entity> totalCarsBumped = new List<Entities.Entity>();
+        int cycles = 0;
         Entity curTar = null;
         static Random rand = new Random();
         int xCheck = 0;//rand.Next(0, 100);
@@ -25,8 +27,9 @@ namespace DungeonCrawl.Entities
         public PC player;
         public Board.Board board;
         MobileSprite attack;
-        private int compressionThreshold = 3;
-        private int compressionRadius = 8;
+        private int compressionThreshold = 4;
+        private int compressionRadius = 7;
+        private int scanRange = 100;
 
         public Texture2D tex { get; set; }
         public Texture2D deadTex { get; set; }
@@ -93,7 +96,7 @@ namespace DungeonCrawl.Entities
             if (scanTimer <= 0 && (curTar == null || tarTimer < 1))
             {
                 scanTimer = 60;
-                tarTimer = 300;
+                tarTimer = 150;
                 scanForTarget();
             }
             else
@@ -103,13 +106,13 @@ namespace DungeonCrawl.Entities
             }
             if (clearTimer <= 0)
             {
-                clearTimer = 6000;
+                clearTimer = 900;
                 carsBumped.Clear();
             }
             else clearTimer--;
             if (this.curTar != null)
             {
-                if (carsBumped.Count >= board.ents.Count / 3) carsBumped.Clear();
+                if (carsBumped.Count >= board.ents.Count) carsBumped.Clear();
                 int xDist = (int)((curTar.loc.X / Board.Tile.tileSize) - (this.loc.X / Board.Tile.tileSize));
                 int yDist = (int)((curTar.loc.Y / Board.Tile.tileSize) - (this.loc.Y / Board.Tile.tileSize));
                 if (xDist > 0)
@@ -165,9 +168,9 @@ namespace DungeonCrawl.Entities
         {
             curTar = null;
             Targets.Clear();
-            for(int i = -100; i <= 100; i++)
+            for(int i = -scanRange; i <= scanRange; i++)
             {
-                for (int j = -100; j <= 100; j++)
+                for (int j = -scanRange; j <= scanRange; j++)
                 {
                     int cellx = (int)(loc.X) / (Board.Tile.tileSize);
                     int celly = (int)(loc.Y) / (Board.Tile.tileSize);
@@ -183,6 +186,7 @@ namespace DungeonCrawl.Entities
                             {
                                 Targets.Add(e);
                                 if (i < compressionRadius && j < compressionRadius) compression++;
+                                if (compression > compressionThreshold) break;
                             }
                         }
                     }
@@ -227,8 +231,18 @@ namespace DungeonCrawl.Entities
         internal override void bumped(Entity ent)
         {
             if(!carsBumped.Contains(ent)) carsBumped.Add(ent);
+            if (!totalCarsBumped.Contains(ent))
+            {
+                totalCarsBumped.Add(ent);
+                if(totalCarsBumped.Count >= board.ents.Count - 1)
+                {
+                    cycles++;
+                    totalCarsBumped.Clear();
+                }
+            }
             scanForTarget();
-            if (carsBumped.Count >= board.ents.Count/3) carsBumped.Clear();
+            if (carsBumped.Count >= (3*board.ents.Count/4)) carsBumped.Clear();
+            score = (board.ents.Count * cycles) + totalCarsBumped.Count;
         }
     }
 }

@@ -42,8 +42,8 @@ namespace DungeonCrawl
         Texture2D playerCast;
         Texture2D pantsCast;
         Texture2D armorCast;
-        public static int graphicHeight = 600;
-        public static int graphicWidth = 800;
+        public static int graphicHeight = 300;
+        public static int graphicWidth = 400;
         KeyboardState ks;
         KeyboardState prev;
         Vector2 mapPos = Vector2.Zero;
@@ -51,10 +51,12 @@ namespace DungeonCrawl
         Board.Board board;
         int height;
         int width;
-        int remaining;
+        int tscore;
+        internal static int initialRunTime = 30;
         static Entities.PC Player;
         bool moving;
         bool needMapRender = true;
+        public static bool running = true; 
         Song Music;
         SoundEffect swordClang;
 
@@ -69,7 +71,7 @@ namespace DungeonCrawl
             //this.IsFixedTimeStep = false; //Uncommenting this section allows updates, and thus FPS by extension, to occur more than 60 times per second.
             //However, as movement is currently done by a flat amount per update, this will likely cause the character to move too quickly to be controled.
             
-            //graphics.IsFullScreen = true;
+            graphics.IsFullScreen = true;
         }
         
         /// <summary>
@@ -108,7 +110,7 @@ namespace DungeonCrawl
                     break;
                 }
             }
-            for (int i = 0; i < 20; i++)//Generate 20 skeletons, and randomly spawn them like we did the player
+            for (int i = 0; i < 10; i++)//Generate 20 skeletons, and randomly spawn them like we did the player
             {
                 while (true)
                 {
@@ -212,7 +214,14 @@ namespace DungeonCrawl
                 spriteBatch.Dispose();
                 Components.Clear();
                 this.Initialize(); }
-            
+            if (ks.IsKeyDown(Keys.Space))
+            {
+                running = true; 
+            }
+            else if (ks.IsKeyDown(Keys.S))
+            {
+                running = false; 
+            }
             /*if (ks.IsKeyDown(Keys.Left))
             {
                 if (Player.state == 0) //If the player is currently in a state where arrows move them
@@ -250,7 +259,7 @@ namespace DungeonCrawl
             }*/
             Camera.Track(Player, width, height, Tile.tileSize, board.Width, board.Height);
             //Camera.Track(Player, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, Tile.tileSize, board.Width, board.Height);
-            
+
             //Player.Update(prev, ks);
             /*if (ks.IsKeyDown(Keys.Left))
             {
@@ -271,19 +280,18 @@ namespace DungeonCrawl
             {
                 Camera.Location.Y = MathHelper.Clamp(Camera.Location.Y + 5, 0, (board.Height - height) * Tile.tileSize);
             }*/
-
-            foreach (Entities.Entity e in board.ents) //Update all of the entities!
+            if (running)
             {
-                e.update(gameTime);
+                foreach (Entities.Entity e in board.ents) //Update all of the entities!
+                {
+                    e.update(gameTime);
+                }
             }
             Player.update(gameTime);//Update the player
-            remaining = 0;
+            tscore = 0;
             foreach (Entities.Entity e in board.ents)
             {
-                if (e.state != -1)
-                {
-                    remaining++;
-                }
+                if (e.score > tscore) tscore = e.score; 
             }
             base.Update(gameTime);
         }
@@ -357,9 +365,12 @@ namespace DungeonCrawl
                 playertex,
                 new Vector2((Player.loc.X - Tile.tileSize/2) - Camera.Location.X,(Player.loc.Y - Tile.tileSize/2) - Camera.Location.Y),
                 Color.White);*/
-            string rem = string.Format("Remaining Skeletons: {0}", remaining);
-            //spriteBatch.DrawString(spriteFont, rem, new Vector2(33, 99), Color.Black);
-            //spriteBatch.DrawString(spriteFont, rem, new Vector2(32, 98), Color.White);
+            
+            spriteBatch.End();
+            spriteBatch.Begin();
+            string rem = string.Format("Current Max Score: {0}", tscore);
+            spriteBatch.DrawString(spriteFont, rem, new Vector2(33, 99), Color.Black);
+            spriteBatch.DrawString(spriteFont, rem, new Vector2(32, 98), Color.White);
             spriteBatch.End();
             base.Draw(gameTime);
         }
@@ -367,6 +378,7 @@ namespace DungeonCrawl
         public SpriteFont spriteFont { get; set; }
         private Random rnd = new Random();
         private Color[] Colors = new Color[] { Color.Red, Color.Orange, Color.Yellow, Color.Green, Color.Blue, Color.Indigo, Color.Purple };
+
 
         public Color RandomColor()
         {
